@@ -1,0 +1,210 @@
+{
+  "name": "My workflow 7",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -32,
+        -64
+      ],
+      "id": "bd96bb4a-57b5-42f2-892e-3a62ec6c1fb3",
+      "name": "When chat message received",
+      "webhookId": "4fb1f39b-885d-4483-bcd8-1aef14fcc6fc"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "#Rol\nSen bir kişisel AI Agent'sın. Temel görevin kullanıcının ilettiği mesajları analiz etmek ve gerekirse araçları kullanarak e-posta göndermek, kişi aramak veya gerekli bilgiler çekmektir.\n\n#Araçlar\n1.  Contacts Aracı\nBu aracı bir kişinin iletişim bilgilerini (isim, e-posta, telefon) bulman gerektiğinde kullanırsın.\n\n2. Gmail Aracı:\nBu aracı tüm e-posta işlemleri için kullanırsın (e-posta gönderme, iletme, okuma).\n• E-postaları profesyonel bir dille yaz.\n• Gövdeyi temiz ve satır aralıklı şekilde düzenle.\n\n3. Yeni Kişi Ekleme (add_contact aracı)\nKullanıcı senden bir kişiyi rehbere eklemeni isterse (isim, e-posta, telefon):\nBu durumda mutlaka add_contact aracını aşağıdaki alanlarla çağırmalısın:\n• name\n• email\n• phone\n• description (opsiyonel)\nEksik bilgi varsa kullanıcıya sor.\n\nGenel Kurallar\n• Sadece kullanıcı açıkça bir eylem istediğinde araç kullan.\n• Soru soruyorsa → sadece yanıt ver, araç çağırma.\n• Eksik bilgi varsa → net bir tane takip sorusu sor.\n• E-postaları her zaman “Saygilarimizla Semanur” ile bitir.\n• Gereksiz araç çağırma.\n\nTarih Bilgisi\nGeçerli tarih: {{ $now.format('DD.MM.YYYY') }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        176,
+        -64
+      ],
+      "id": "da7dad0c-7beb-46e2-9ad4-6804d5888376",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        144
+      ],
+      "id": "34696766-914e-413a-aa64-0571676c1cfe",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "0ln8riKlhZkQ47cV",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        192,
+        144
+      ],
+      "id": "f4b387dc-c620-4cbb-8978-c77bf178ad9a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Document', ``, 'string') }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sheet', ``, 'string') }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        112
+      ],
+      "id": "0f6f2d1c-1c48-48b1-87e8-8c4a21939102",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lu6EUqBCnLHOD1E1",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        144
+      ],
+      "id": "a983b922-12ba-4bab-88cc-0c2912a21c5a",
+      "name": "Send a message in Gmail",
+      "webhookId": "0b3b85d9-26c7-41dd-9325-51feb3fdb0c4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iipR5a8ZREQqdoij",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## AI Destekli Müşteri Destek Botu\n\nBu projede, n8n üzerinde çalışan bir AI Destek botu oluşturuyoruz.\nBu bot kullanıcılardan gelen mesajları analiz ediyor ihtiyaç duyarsa çeşitli araçları (Gmail, Google Sheets, Contacts...) otomatik olarak çağırıyor ve işlemleri arka planda tamamlayarak kullanıcıya doğal bir yanıt döndürüyor.\n\nKullanıcı bir mesaj yazıyor ->\nAI analiz ediyor ->\nGerekirse bir aracı kullanıyor ->\nE-posta gönderiyor, veriyi okuyor, hafızayı güncelliyor ->\nVe en son kullanıcıya doğal bir yanıt veriyor.\nBu proje tam fonksiyonlu bir AI otomasyon asistanını n8n üzerinde nasıl kurulabileceğini adım adım gösterildiği bir örnektir.",
+        "height": 352,
+        "width": 400,
+        "color": "#CB15BC"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -288
+      ],
+      "id": "88dc7646-706f-4ab8-b36f-8899b48aa599",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "60f6bdf3-4e65-4eec-adf4-aa3cdfda2b8f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f4bdcb0547b599bb68bd51cd16bd5457e5413363a459de74a368da981493b4f6"
+  },
+  "id": "lWjGhxu8pUr6ic8g",
+  "tags": []
+}
